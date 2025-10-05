@@ -7,7 +7,7 @@ public class TemperatureSimulator : MonoBehaviour
     private float maxScaleY = 1f;
     private float timer = 0f;
     private bool isActive = false;
-    private int requiredSeeds = 1; // Number of seeds needed to maximize temperature
+    private int requiredSeeds = 1; // Minimum number of seeds needed to start temperature rise
     private Transform parentJar; // Track the jar this thermometer is in
 
     void Start()
@@ -36,7 +36,7 @@ public class TemperatureSimulator : MonoBehaviour
             // Log the number of seeds for each update
             if (seedCount > 0)
             {
-                Debug.Log("Number of GerminatingSeeds in " + (parentJar != null ? parentJar.name : "unknown jar") + ": " + seedCount + " out of " + requiredSeeds);
+                Debug.Log("Number of GerminatingSeeds in " + (parentJar != null ? parentJar.name : "unknown jar") + ": " + seedCount + " out of " + requiredSeeds + " or more");
             }
             else if (parentJar != null)
             {
@@ -44,7 +44,7 @@ public class TemperatureSimulator : MonoBehaviour
             }
 
             // Control temperature based on seed count
-            if (parentJar != null && seedCount == requiredSeeds)
+            if (parentJar != null && seedCount >= requiredSeeds) // Any number >= 1 triggers the simulation
             {
                 timer += Time.deltaTime;
                 float progress = Mathf.Clamp01(timer / 1f); // 1-second simulation
@@ -85,7 +85,7 @@ public class TemperatureSimulator : MonoBehaviour
                 }
                 else if (parentJar != null)
                 {
-                    Debug.Log("Not enough GerminatingSeeds in " + parentJar.name + " (" + seedCount + " out of " + requiredSeeds + "). Temperature paused.");
+                    Debug.Log("Not enough GerminatingSeeds in " + parentJar.name + " (" + seedCount + " out of " + requiredSeeds + " required). Temperature paused.");
                 }
             }
         }
@@ -97,11 +97,11 @@ public class TemperatureSimulator : MonoBehaviour
         parentJar = transform.parent; // Update parent on enable
         if (parentJar != null && parentJar.CompareTag("Jar"))
         {
-            Debug.Log("Temperature simulation started in " + parentJar.name + ". Requires " + requiredSeeds + " GerminatingSeeds.");
+            Debug.Log("Temperature simulation started in " + parentJar.name + ". Requires " + requiredSeeds + " or more GerminatingSeeds.");
         }
         else
         {
-            Debug.Log("Temperature simulation started but not in a jar. Requires " + requiredSeeds + " GerminatingSeeds.");
+            Debug.Log("Temperature simulation started but not in a jar. Requires " + requiredSeeds + " or more GerminatingSeeds.");
         }
     }
 

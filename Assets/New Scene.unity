@@ -2047,7 +2047,7 @@ GameObject:
   - component: {fileID: 911180890}
   - component: {fileID: 911180889}
   m_Layer: 0
-  m_Name: Thermo1 (1)
+  m_Name: Thermo1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2372,6 +2372,7 @@ MonoBehaviour:
   jar1HintText: {fileID: 1443554004}
   jar2HintText: {fileID: 1511050748}
   thermoHintText: {fileID: 570096801}
+  thermo2HintText: {fileID: 911180889}
   seedsHintText: {fileID: 1425256111}
   seedsbHintText: {fileID: 1463818305}
 --- !u!1 &1256361897 stripped
