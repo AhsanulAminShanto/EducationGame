@@ -43,14 +43,12 @@ public class Drag3DObject : MonoBehaviour
             {
                 if (CompareTag("Seeds"))
                 {
-                    // Move seeds under the jar using the jar reference
                     transform.position = jar.position + Vector3.down * 0.2f; // Underneath
                     transform.parent = jar; // Parent to the jar
-                    Debug.Log(gameObject.name + " placed under Jar!");
+                    Debug.Log(gameObject.name + " placed under " + jar.name + "!");
                 }
                 else if (CompareTag("Thermometer"))
                 {
-                    // Stand thermometer upright in cork position
                     transform.position = jar.position + Vector3.up * 0.3f; // Adjust height for cork
                     transform.rotation = Quaternion.Euler(0, 0, 0); // Upright
                     transform.parent = jar;
@@ -59,7 +57,7 @@ public class Drag3DObject : MonoBehaviour
                     {
                         tempSim.enabled = true;
                     }
-                    Debug.Log(gameObject.name + " inserted into Jar cork!");
+                    Debug.Log(gameObject.name + " inserted into " + jar.name + " cork!");
                 }
             }
         }

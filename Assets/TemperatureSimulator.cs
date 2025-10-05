@@ -7,7 +7,8 @@ public class TemperatureSimulator : MonoBehaviour
     private float maxScaleY = 1f;
     private float timer = 0f;
     private bool isActive = false;
-    private int requiredSeeds = 2; // Number of seeds needed to maximize temperature
+    private int requiredSeeds = 1; // Number of seeds needed to maximize temperature
+    private Transform parentJar; // Track the jar this thermometer is in
 
     void Start()
     {
@@ -16,26 +17,34 @@ public class TemperatureSimulator : MonoBehaviour
             mercuryTransform.localScale = new Vector3(1, startScaleY, 1);
         }
         enabled = false;
+        // Check parent on start in case already placed
+        parentJar = transform.parent;
+        if (parentJar != null && parentJar.CompareTag("Jar"))
+        {
+            Debug.Log("Thermometer starting in: " + parentJar.name);
+        }
     }
 
     void Update()
     {
         if (isActive && mercuryTransform != null)
         {
+            // Update parent jar if changed
+            parentJar = transform.parent;
             int seedCount = CountSeedsInJar();
 
             // Log the number of seeds for each update
             if (seedCount > 0)
             {
-                Debug.Log("Number of GerminatingSeeds in Jar: " + seedCount + " out of " + requiredSeeds);
+                Debug.Log("Number of GerminatingSeeds in " + (parentJar != null ? parentJar.name : "unknown jar") + ": " + seedCount + " out of " + requiredSeeds);
             }
-            else
+            else if (parentJar != null)
             {
-                Debug.Log("No GerminatingSeeds in Jar.");
+                Debug.Log("No GerminatingSeeds in " + parentJar.name + ".");
             }
 
             // Control temperature based on seed count
-            if (seedCount == requiredSeeds)
+            if (parentJar != null && seedCount == requiredSeeds)
             {
                 timer += Time.deltaTime;
                 float progress = Mathf.Clamp01(timer / 1f); // 1-second simulation
@@ -53,11 +62,11 @@ public class TemperatureSimulator : MonoBehaviour
                 // Log temperature rising
                 if (progress > 0f && progress < 1f)
                 {
-                    Debug.Log("Temperature is rising... Progress: " + (progress * 100).ToString("F1") + "%");
+                    Debug.Log("Temperature in " + parentJar.name + " is rising... Progress: " + (progress * 100).ToString("F1") + "%");
                 }
                 else if (progress >= 1f)
                 {
-                    Debug.Log("Temperature has reached maximum!");
+                    Debug.Log("Temperature in " + parentJar.name + " has reached maximum!");
                 }
             }
             else
@@ -70,13 +79,13 @@ public class TemperatureSimulator : MonoBehaviour
                 {
                     renderer.material.color = Color.red; // Reset to base color
                 }
-                if (seedCount == 0)
+                if (parentJar != null && seedCount == 0)
                 {
-                    Debug.Log("Jar is empty. Temperature reset.");
+                    Debug.Log(parentJar.name + " is empty. Temperature reset.");
                 }
-                else
+                else if (parentJar != null)
                 {
-                    Debug.Log("Not enough GerminatingSeeds (" + seedCount + " out of " + requiredSeeds + "). Temperature paused.");
+                    Debug.Log("Not enough GerminatingSeeds in " + parentJar.name + " (" + seedCount + " out of " + requiredSeeds + "). Temperature paused.");
                 }
             }
         }
@@ -85,25 +94,35 @@ public class TemperatureSimulator : MonoBehaviour
     void OnEnable()
     {
         isActive = true;
-        Debug.Log("Temperature simulation started. Requires " + requiredSeeds + " GerminatingSeeds.");
+        parentJar = transform.parent; // Update parent on enable
+        if (parentJar != null && parentJar.CompareTag("Jar"))
+        {
+            Debug.Log("Temperature simulation started in " + parentJar.name + ". Requires " + requiredSeeds + " GerminatingSeeds.");
+        }
+        else
+        {
+            Debug.Log("Temperature simulation started but not in a jar. Requires " + requiredSeeds + " GerminatingSeeds.");
+        }
     }
 
     int CountSeedsInJar()
     {
-        Transform jar = GameObject.Find("Jar1").transform; // Assumes Jar1 exists
-        if (jar != null)
+        if (parentJar == null)
         {
-            int count = 0;
-            foreach (Transform child in jar)
-            {
-                if (child.CompareTag("Seeds"))
-                {
-                    count++;
-                }
-            }
-            return count; // Count only objects tagged as "Seeds"
+            Debug.LogWarning("Thermometer not in a jar!");
+            return 0;
         }
-        Debug.LogWarning("Jar1 not found!");
-        return 0;
+
+        Debug.Log("Checking seeds in: " + parentJar.name);
+        int count = 0;
+        foreach (Transform child in parentJar)
+        {
+            if (child.CompareTag("Seeds"))
+            {
+                count++;
+                Debug.Log("Found seed: " + child.name + " in " + parentJar.name);
+            }
+        }
+        return count; // Count only objects tagged as "Seeds"
     }
 }
